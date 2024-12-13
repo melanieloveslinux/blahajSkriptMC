@@ -12,7 +12,7 @@ function transformToBlahaj(tEntity: entity):
 	set {i::blahaj::%{_tEntity}'s uuid%::display} to last spawned armor stand
 	set {_blaDis} to {i::blahaj::%{_tEntity}'s uuid%::display}
 
-	set name of {_blaDis} to "&bB&dl&fåh&da&bja"
+	set name of {_blaDis} to "&bB&dl&fåh&ba&dj"
 	add nbt from "{CustomNameVisible:1}" to nbt of {_blaDis}
 	make {_blaDis} invisible
 	set helmet of {_blaDis} to {i::blahajHead}
@@ -26,20 +26,19 @@ function transformToBlahaj(tEntity: entity):
 
 	kill {_blaDis}
 
+function shearKill(blahaj: entity):
+	exit
+
+
 on spawn of sheep:
 	if spawn reason is spawn egg:
-		if nearest player is holding sheep spawn egg named "&bB&dl&fåh&da&bja &fspawn egg":
+		if nearest player is holding sheep spawn egg named "&bB&dl&fåh&ba&dj &fspawn egg":
 			transformToBlahaj(event-entity)
 	else:
 		chance of 40%:
 			transformToBlahaj(event-entity)
 
 
-
-on damage of armor stand:
-	if {i::blahajStand::%uuid of victim%} is set:
-		cancel event
-		make attacker damage {i::blahajStand::%victim's uuid%} by final damage
 
 command /showblahajuuid:
 	permission: op
@@ -55,7 +54,7 @@ command /clearBlahaj:
 command /getBlahajEgg:
 	permission: op
 	trigger:
-		give sheep egg named "&bB&dl&fåh&da&bja &fspawn egg" to player
+		give sheep egg named "&bB&dl&fåh&ba&dj &fspawn egg" to player
 
 on death of sheep:
 	if {i::blahaj::*} contains uuid of victim:
@@ -70,5 +69,21 @@ on shear entity:
 		kill event-entity
 		drop pink tulip named "&d&oBlåhaj forgives!"
 		chance of 5%:
-			drop ghast tear named "&2You Monster."
+			drop ghast tear named "&4You Monster."
 		make 10 of poof at location 0.8 block above event-entity with offset vector(0.4, 0.4, 0.4) with extra 0.1
+
+
+on damage of armor stand:
+	if {i::blahajStand::%uuid of victim%} is set:
+		cancel event
+		make attacker damage {i::blahajStand::%victim's uuid%} by final damage
+		
+on right click on armor stand:
+	if player's tool is shears:
+		if {i::blahajStand::%uuid of event-entity%} is set:
+			cancel event
+			kill event-entity
+			drop pink tulip named "&d&oBlåhaj forgives!" at event-entity's head
+			chance of 5%:
+				drop ghast tear named "&2You Monster." at event-entity's head
+			make 10 of poof at location 0.8 block above event-entity with offset vector(0.4, 0.4, 0.4) with extra 0.1
