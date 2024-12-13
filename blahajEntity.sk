@@ -1,3 +1,54 @@
-on spawn of dolphin:
+on load:
+	set {i::blahajHead} to player head with nbt from "{SkullOwner:{Id:[I;351810120,-1305655747,-1771231471,122348655],Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjZkNWRhNzlkNzhiZTllNzY2MmY2NWMyNTBhMTdmYzE4ZDBlZTYzMTEwZmFjMDY4ZDUxY2E1ZDU5MmY3MDUyZSJ9fX0=""}]}}}"
+
+
+on spawn of sheep:
 	chance of 40%:
-		set name of event-entity to "&bB&dl&fåh&da&bja"
+		
+		# Spawn Handling
+		add event-entity's uuid to {i::blahaj::*}
+
+		make event-entity invisible
+
+		spawn armor stand above event-entity
+
+		set {i::blahaj::%event-entity's uuid%::display} to last spawned armor stand
+		set {_blaDis} to {i::blahaj::%event-entity's uuid%::display}
+
+		set name of {_blaDis} to "&bB&dl&fåh&da&bja"
+		add nbt from "{CustomNameVisible:1}" to nbt of {_blaDis}
+		make {_blaDis} invisible
+		set helmet of {_blaDis} to {i::blahajHead}
+
+		set {i::blahajStand::%uuid of {_blaDis}%} to event-entity
+
+
+		while event-entity is alive:
+			teleport {_blaDis} at location 2 blocks below event-entity's head
+			play 1 dust at location 0.5 blocks below {_blaDis}'s head
+			wait 1 tick
+
+		kill {_blaDis}
+
+on damage of armor stand:
+	if {i::blahajStand::%uuid of victim%} is set:
+		cancel event
+		make attacker damage {i::blahajStand::%victim's uuid%} by final damage
+
+command /showblahajuuid:
+	permission: op
+	trigger:
+		send "&6%{i::blahaj::*}%" to player
+
+command /clearBlahaj:
+	permission: op
+	trigger:
+		send "Cleared" to player
+		clear {i::blahaj::*}
+
+on death of sheep:
+	if {i::blahaj::*} contains uuid of victim:
+		clear {i::blahaj::%uuid of victim%}
+		kill {i::blahaj::%victim's uuid%::display}
+		clear {i::blahaj::%uuid of victim%::*}
+		cancel drops
