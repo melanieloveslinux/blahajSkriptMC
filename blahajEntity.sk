@@ -1,0 +1,3 @@
+on spawn of dolphin:
+	chance of 40%:
+		set name of event-entity to "&bB&dl&fåh&da&bja"
