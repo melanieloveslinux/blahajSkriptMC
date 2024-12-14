@@ -1,5 +1,9 @@
 # Hello World
-Nothing to see here just yet. (:
+Currently adds cute Blåhaj.  Blåhaj has a small chance of spawning where sheep normally would & can also be sheared for their fur which, will have functionality later.
+
+If you wish to spawn Blåhaj yourself, execute `/getBlahajEgg`.
+
+<img src="images/blahajPen.png">
 
 # Instructions to use
 Install a version 1.20.2 Minecraft server (other versions of MC might work).  I downloaded my server from [minecraftversions.net](https://www.minecraftversions.net/paper).
