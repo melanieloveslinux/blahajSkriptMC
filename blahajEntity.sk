@@ -56,16 +56,13 @@ function checkLinkedEntity(en: entity) :: boolean:
 function shearBlahaj(oEntity: entity):
 	set {_dEntity} to {blahajScript::blahaj::%{_oEntity}'s uuid%::linkedEntity}
 	set name of {_dEntity} to "&7Blahaj &c✂"
-	wait 2 ticks
-	loop all dropped items in radius 1 around location 1 blocks above {_oEntity}:
-		if "%loop-entity%" contains "wool":
-			kill loop-entity
-			add 1 to {_counter}
-			if {_counter} >= 2:
-				exit loop
 	drop {blahajScript::blahajFur} at {_oEntity}
-	play sound "minecraft:entity.cat.ambient" in friendly creatures category with volume 1 at location of {_oEntity} for all players
+	# blahajHappy({_oEntity}) <- Already plays in right click event
+
+function blahajHappy(oEntity: entity):
+	play sound "minecraft:entity.cat.ambient" in friendly creatures category with volume 0.7 at location of {_oEntity} for all players
 	make 5 of heart at location 0.7 block above {_oEntity} with offset vector(0.3, 0.5, 0.3)
+
 
 
 
@@ -78,6 +75,9 @@ function killBlahaj(oEntity: entity, attacker: entity):
 	kill {_dEntity}
 	clear {blahajScript::blahaj::%{_oEntity}'s uuid%::linkedEntity}
 	clear {blahajScript::blahaj::%{_dEntity}'s uuid%::linkedEntity}
+	wait 20 ticks
+	strike lightning at {_attacker}
+	broadcast "&4&o%{_attacker}% murdered a Blåhaj!"
 
 
 
@@ -87,7 +87,7 @@ on spawn of sheep:
 		if nearest player is holding sheep spawn egg named "&bB&dl&fåh&ba&dj &fspawn egg":
 			transformToBlahaj(event-entity)
 	else if spawn reason is natural:
-		chance of 10%:
+		chance of 20%:
 			transformToBlahaj(event-entity)
 
 on death of sheep:
@@ -115,6 +115,10 @@ on pick up of light blue wool:
 	if event-item is {blahajScript::blahajFur}:
 		discover recipe "blahajScript:blahaj_head" for player
 
+on right click on sheep:
+	if checkLinkedEntity(event-entity) is true:
+		blahajHappy(event-entity)
+
 
 
 on sneak toggle:   # ¬ Dash mechanic
@@ -139,7 +143,6 @@ on damage of player:
 		if victim's helmet is {blahajScript::blahajHead}:
 			if {blahajScript::%victim%::dash} is set:
 				cancel event
-
 
 
 # Dev Commands
