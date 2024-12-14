@@ -64,6 +64,8 @@ function shearBlahaj(oEntity: entity):
 			if {_counter} >= 2:
 				exit loop
 	drop {blahajScript::blahajFur} at {_oEntity}
+	play sound "minecraft:entity.cat.ambient" in friendly creatures category with volume 1 at location of {_oEntity} for all players
+	make 5 of heart at location 0.7 block above {_oEntity} with offset vector(0.3, 0.5, 0.3)
 
 
 
@@ -113,6 +115,8 @@ on pick up of light blue wool:
 	if event-item is {blahajScript::blahajFur}:
 		discover recipe "blahajScript:blahaj_head" for player
 
+
+
 on sneak toggle:   # ¬ Dash mechanic
 	if player is not sneaking:
 		if player is sprinting:
@@ -129,6 +133,12 @@ on sneak toggle:   # ¬ Dash mechanic
 						if player is not alive:
 							exit loop
 					clear {blahajScript::%Player%::dash}
+
+on damage of player:
+	if damage cause is fall:
+		if victim's helmet is {blahajScript::blahajHead}:
+			if {blahajScript::%victim%::dash} is set:
+				cancel event
 
 
 
