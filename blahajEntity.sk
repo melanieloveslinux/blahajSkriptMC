@@ -48,6 +48,8 @@ function checkLinkedEntity(en: entity) :: boolean:
 
 
 function shearBlahaj(oEntity: entity):
+	set {_dEntity} to {blahajScript::blahaj::%{_oEntity}'s uuid%::linkedEntity}
+	set name of {_dEntity} to "&7Blahaj &c✂"
 	wait 2 ticks
 	loop all dropped items in radius 1 around location 1 blocks above {_oEntity}:
 		if "%loop-entity%" contains "wool":
@@ -96,6 +98,11 @@ on shear entity:
 		set {_oEntity} to event-entity
 		shearBlahaj({_oEntity})
 		
+on sheep grow wool:
+	if checkLinkedEntity(event-entity) is true:
+		set {_dEntity} to {blahajScript::blahaj::%event-entity's uuid%::linkedEntity}
+		set name of {_dEntity} to "&7&bB&dl&fåh&ba&dj"
+
 
 
 # Dev Commands
