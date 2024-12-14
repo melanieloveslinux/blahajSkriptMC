@@ -3,6 +3,12 @@ on load:
 	set {blahajScript::blahajHead} to player head named "&bB&dl&fåh&ba&dj &fFace Mask" with nbt from "{SkullOwner:{Id:[I;351810120,-1305655747,-1771231471,122348655],Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjZkNWRhNzlkNzhiZTllNzY2MmY2NWMyNTBhMTdmYzE4ZDBlZTYzMTEwZmFjMDY4ZDUxY2E1ZDU5MmY3MDUyZSJ9fX0=""}]}}}"
 	set {blahajScript::blahajFur} to light blue wool named "&fBlåhaj Fur"
 
+	register shaped recipe:
+		id: "blahajScript:blahaj_head"
+		result: {blahajScript::blahajHead}
+		shape: "aaa", "a a"
+		ingredients:
+			set ingredient of "a" to {blahajScript::blahajFur}
 
 # Functions
 function transformToBlahaj(oEntity: entity):
@@ -102,6 +108,10 @@ on sheep grow wool:
 	if checkLinkedEntity(event-entity) is true:
 		set {_dEntity} to {blahajScript::blahaj::%event-entity's uuid%::linkedEntity}
 		set name of {_dEntity} to "&7&bB&dl&fåh&ba&dj"
+
+on pick up of light blue wool:
+	if event-item is {blahajScript::blahajFur}:
+		discover recipe "blahajScript:blahaj_head" for player
 
 
 

@@ -1,5 +1,5 @@
 # Hello World
-Currently adds cute Blåhaj.  Blåhaj has a small chance of spawning where sheep normally would & can also be sheared for their fur which, will have functionality later.
+Currently adds cute Blåhaj.  Blåhaj has a small chance of spawning where sheep normally would & can also be sheared for their fur which, has limited use as of now.
 
 If you wish to spawn Blåhaj yourself, execute `/getBlahajEgg`.
 
