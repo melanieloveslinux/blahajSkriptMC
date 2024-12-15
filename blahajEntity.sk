@@ -95,7 +95,7 @@ function killBlahaj(oEntity: entity, attacker: entity):
 
 	wait 20 ticks
 	if {@karma} is true:
-		if type of {_attacker} is player:
+		if {_attacker} is a player:
 			strike lightning at {_attacker}
 			broadcast mini message from "<gradient:##b40020:##440010>%{_attacker}% murdered a Blåhaj!"
 
