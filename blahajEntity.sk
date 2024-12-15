@@ -60,7 +60,6 @@ function blahajEntityLoop(oEntity: entity, dEntity: entity):
 		play 1 dust at location 0.5 blocks below {_dEntity}'s head
 		wait 1 tick
 	clearBlahaj({_oEntity}, {_dEntity})
-	
 
 
 function checkLinkedEntity(en: entity) :: boolean:
@@ -103,6 +102,8 @@ function reloadBlahajDisplays():
 	send "Reloading Blahaj Displays!" to console
 	loop all armor stands:
 		if {blahajScript::blahaj::%loop-entity's uuid%} is true:
+			clear {blahajScript::blahaj::%loop-entity's uuid%}
+			clear {blahajScript::blahaj::%loop-entity's uuid%::*}
 			kill loop-entity
 
 	loop all sheep:
