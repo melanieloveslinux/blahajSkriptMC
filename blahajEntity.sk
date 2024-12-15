@@ -1,17 +1,31 @@
-# Preloads
-on load:
-	set {blahajScript::blahajHead} to player head named "&bB&dl&fåh&ba&dj &fFace Mask" with lore "&8&oGreatly enhances dashing capabilities.%nl%&8&oSneak while sprinting to use." with nbt from "{SkullOwner:{Id:[I;351810120,-1305655747,-1771231471,122348655],Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjZkNWRhNzlkNzhiZTllNzY2MmY2NWMyNTBhMTdmYzE4ZDBlZTYzMTEwZmFjMDY4ZDUxY2E1ZDU5MmY3MDUyZSJ9fX0=""}]}}}"
-	set {blahajScript::blahajFur} to light blue wool named "&fBlåhaj Fur"
+# Options
+options:
 
-	register shaped recipe:
-		id: "blahajScript:blahaj_head"
-		result: {blahajScript::blahajHead}
-		shape: "aaa", "a a"
-		ingredients:
-			set ingredient of "a" to {blahajScript::blahajFur}
+	### Gameplay! ###
+	# The chance of a sheep being converted into a Blahaj plushie :3
+	chanceOfBlahaj: 20
+
+	# Strikes anyone with lightning & broadcasts their sins if they do harm to Blahaj!
+	karma: true
+	
+	# Enable dashing (sprint & crouch) while wearing Blahaj mask
+	dash: true
+
+	# Enable fall damage from dashing
+	dashFallDmg: false
+
+	### Adminy Stuff! ###
+	# The delay between the player to first join & Blahaj display reload
+	loadDelay: 20 ticks
+
+
 
 # Functions
 function transformToBlahaj(oEntity: entity):
+
+	if {blahajScript::blahaj::%{_oEntity}'s uuid%::mainLoop} is set:
+		clear {blahajScript::blahaj::%{_oEntity}'s uuid%::mainLoop}
+		wait 1 tick
 
 	# oEntity=(Original entity), dEntity=(Display entity/armor stand)
 	
@@ -20,13 +34,16 @@ function transformToBlahaj(oEntity: entity):
 	make {_oEntity} silent
 
 	# Initialize display entity
-	spawn armor stand above {_oEntity}
+	spawn armor stand at location 2 blocks below {_oEntity}'s head
 	set {_dEntity} to last spawned armor stand
 
 	# Link Entities
 	set {blahajScript::blahaj::%{_oEntity}'s uuid%::linkedEntity} to {_dEntity}
 	set {blahajScript::blahaj::%{_dEntity}'s uuid%::linkedEntity} to {_oEntity}
-	
+
+	set {blahajScript::blahaj::%{_oEntity}'s uuid%} to true
+	set {blahajScript::blahaj::%{_dEntity}'s uuid%} to true
+
 	# Display entity's apperance
 	set name of {_dEntity} to "&bB&dl&fåh&ba&dj"
 	add nbt from "{CustomNameVisible:1}" to nbt of {_dEntity}
@@ -36,34 +53,34 @@ function transformToBlahaj(oEntity: entity):
 	blahajEntityLoop({_oEntity}, {_dEntity})
 
 
-
 function blahajEntityLoop(oEntity: entity, dEntity: entity):
-	while {_oEntity} is alive:
+	set {blahajScript::blahaj::%{_oEntity}'s uuid%::mainLoop} to true
+	while {blahajScript::blahaj::%{_oEntity}'s uuid%::mainLoop} is set:
 		teleport {_dEntity} at location 2 blocks below {_oEntity}'s head
 		play 1 dust at location 0.5 blocks below {_dEntity}'s head
 		wait 1 tick
-
+	clearBlahaj({_oEntity}, {_dEntity})
+	
 
 
 function checkLinkedEntity(en: entity) :: boolean:
-	if {blahajScript::blahaj::%{_en}'s uuid%::linkedEntity} is set:
+	if {blahajScript::blahaj::%{_en}'s uuid%} is set:
 		return true
 	else:
 		return false
 
 
-
 function shearBlahaj(oEntity: entity):
-	set {_dEntity} to {blahajScript::blahaj::%{_oEntity}'s uuid%::linkedEntity}
-	set name of {_dEntity} to "&7Blahaj &c✂"
+	# First element is used however, there should only be *one* element for the linked entity
+	set {_dEntity} to first element of {blahajScript::blahaj::%{_oEntity}'s uuid%::linkedEntity::*}
+	set name of {_dEntity} to "&7Blåhaj &c✂"
 	drop {blahajScript::blahajFur} at {_oEntity}
 	# blahajHappy({_oEntity}) <- Already plays in right click event
+
 
 function blahajHappy(oEntity: entity):
 	play sound "minecraft:entity.cat.ambient" in friendly creatures category with volume 0.7 at location of {_oEntity} for all players
 	make 5 of heart at location 0.7 block above {_oEntity} with offset vector(0.3, 0.5, 0.3)
-
-
 
 
 function killBlahaj(oEntity: entity, attacker: entity):
@@ -73,12 +90,48 @@ function killBlahaj(oEntity: entity, attacker: entity):
 	wait 20 ticks
 	make 20 of poof at location 1.2 block above {_dEntity} with offset vector(0.2, 0.2, 0.2) with extra 0.05
 	kill {_dEntity}
-	clear {blahajScript::blahaj::%{_oEntity}'s uuid%::linkedEntity}
-	clear {blahajScript::blahaj::%{_dEntity}'s uuid%::linkedEntity}
-	wait 20 ticks
-	strike lightning at {_attacker}
-	broadcast "&4&o%{_attacker}% murdered a Blåhaj!"
 
+	clearBlahaj({_oEntity}, {_dEntity})
+
+	wait 20 ticks
+	if {@karma} is true:
+		if type of {_attacker} is player:
+			strike lightning at {_attacker}
+			broadcast mini message from "<gradient:##b40020:##440010>%{_attacker}% murdered a Blåhaj!"
+
+function reloadBlahajDisplays():
+	send "Reloading Blahaj Displays!" to console
+	loop all armor stands:
+		if {blahajScript::blahaj::%loop-entity's uuid%} is true:
+			kill loop-entity
+
+	loop all sheep:
+		if {blahajScript::blahaj::%loop-entity's uuid%} is true:
+			transformToBlahaj(loop-entity)
+
+function clearBlahaj(oEntity: entity, dEntity: entity):
+	clear {blahajScript::blahaj::%{_oEntity}'s uuid%::*}
+	clear {blahajScript::blahaj::%{_dEntity}'s uuid%::*}
+	clear {blahajScript::blahaj::%{_oEntity}'s uuid%}
+	clear {blahajScript::blahaj::%{_dEntity}'s uuid%}
+
+# Preloads
+on load:
+	set {blahajScript::blahajHead} to player head named "&bB&dl&fåh&ba&dj &fFace Mask" with lore "&8&oMr Sharky understands me." with nbt from "{SkullOwner:{Id:[I;351810120,-1305655747,-1771231471,122348655],Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjZkNWRhNzlkNzhiZTllNzY2MmY2NWMyNTBhMTdmYzE4ZDBlZTYzMTEwZmFjMDY4ZDUxY2E1ZDU5MmY3MDUyZSJ9fX0=""}]}}}"
+	set {blahajScript::blahajFur} to light blue wool named "&fBlåhaj Fur"
+
+	register shaped recipe:
+		id: "blahajScript:blahaj_head"
+		result: {blahajScript::blahajHead}
+		shape: "aaa", "a a"
+		ingredients:
+			set ingredient of "a" to {blahajScript::blahajFur}
+
+	
+	while amount of players <= 0:
+		wait 4 ticks
+	wait {@loadDelay}
+	reloadBlahajDisplays()
 
 
 # Events
@@ -87,7 +140,7 @@ on spawn of sheep:
 		if nearest player is holding sheep spawn egg named "&bB&dl&fåh&ba&dj &fspawn egg":
 			transformToBlahaj(event-entity)
 	else if spawn reason is natural:
-		chance of 20%:
+		chance of {chanceOfBlahaj}%:
 			transformToBlahaj(event-entity)
 
 on death of sheep:
@@ -122,27 +175,29 @@ on right click on sheep:
 
 
 on sneak toggle:   # ¬ Dash mechanic
-	if player is not sneaking:
-		if player is sprinting:
-			if player's helmet is {blahajScript::blahajHead}:
-				if {blahajScript::%Player%::dash} is not set:
-					set {blahajScript::%Player%::dash} to false
-					play sound "entity.wither.shoot" with pitch 1.5 at player
-					make 20 of poof at player with offset vector(0.2, 0.2, 0.2) with extra 0.2
-					push player upwards at speed 0.3
-					push player in direction of player at speed 1.2
-					while player is not on ground:
-						wait 2 tick
-						make 1 of poof at player with offset vector(0.2, 0.2, 0.2) with extra 0.05
-						if player is not alive:
-							exit loop
-					clear {blahajScript::%Player%::dash}
+	if {@dash} is true:
+		if player is not sneaking:
+			if player is sprinting:
+				if player's helmet is {blahajScript::blahajHead}:
+					if {blahajScript::%Player%::dash} is not set:
+						set {blahajScript::%Player%::dash} to false
+						play sound "entity.wither.shoot" with pitch 1.5 at player
+						make 20 of poof at player with offset vector(0.2, 0.2, 0.2) with extra 0.2
+						push player upwards at speed 0.3
+						push player in direction of player at speed 1.2
+						while player is not on ground:
+							wait 2 tick
+							make 1 of poof at player with offset vector(0.2, 0.2, 0.2) with extra 0.05
+							if player is not alive:
+								exit loop
+						clear {blahajScript::%Player%::dash}
 
 on damage of player:
 	if damage cause is fall:
-		if victim's helmet is {blahajScript::blahajHead}:
-			if {blahajScript::%victim%::dash} is set:
-				cancel event
+		if {@dashFallDmg} is true:
+			if victim's helmet is {blahajScript::blahajHead}:
+				if {blahajScript::%victim%::dash} is set:
+					cancel event
 
 
 # Dev Commands
