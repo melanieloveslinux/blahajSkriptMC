@@ -45,7 +45,7 @@ function transformToBlahaj(oEntity: entity):
 	set {blahajScript::blahaj::%{_dEntity}'s uuid%} to true
 
 	# Display entity's apperance
-	set name of {_dEntity} to "&bB&dl&fåh&ba&dj"
+	set name of {_dEntity} to "&bB&dl&fåh&da&bj"
 	add nbt from "{CustomNameVisible:1}" to nbt of {_dEntity}
 	make {_dEntity} invisible
 	set helmet of {_dEntity} to {blahajScript::blahajHead}
@@ -71,7 +71,7 @@ function checkLinkedEntity(en: entity) :: boolean:
 
 function shearBlahaj(oEntity: entity):
 	# First element is used however, there should only be *one* element for the linked entity
-	set {_dEntity} to first element of {blahajScript::blahaj::%{_oEntity}'s uuid%::linkedEntity::*}
+	set {_dEntity} to {blahajScript::blahaj::%{_oEntity}'s uuid%::linkedEntity}
 	set name of {_dEntity} to "&7Blåhaj &c✂"
 	drop {blahajScript::blahajFur} at {_oEntity}
 	# blahajHappy({_oEntity}) <- Already plays in right click event
@@ -163,7 +163,7 @@ on shear entity:
 on sheep grow wool:
 	if checkLinkedEntity(event-entity) is true:
 		set {_dEntity} to {blahajScript::blahaj::%event-entity's uuid%::linkedEntity}
-		set name of {_dEntity} to "&7&bB&dl&fåh&ba&dj"
+		set name of {_dEntity} to "&bB&dl&fåh&da&bj"
 
 on pick up of light blue wool:
 	if event-item is {blahajScript::blahajFur}:
@@ -195,7 +195,7 @@ on sneak toggle:   # ¬ Dash mechanic
 
 on damage of player:
 	if damage cause is fall:
-		if {@dashFallDmg} is true:
+		if {@dashFallDmg} is false:
 			if victim's helmet is {blahajScript::blahajHead}:
 				if {blahajScript::%victim%::dash} is set:
 					cancel event
