@@ -7,7 +7,7 @@ options:
 
 	# Strikes anyone with lightning & broadcasts their sins if they do harm to Blahaj!
 	karma: true
-	
+
 	# Enable dashing (sprint & crouch) while wearing Blahaj mask
 	dash: true
 
@@ -100,6 +100,7 @@ function killBlahaj(oEntity: entity, attacker: entity):
 			damage {_attacker} by 5
 			broadcast mini message from "<gradient:##b40020:##440010>%{_attacker}% murdered a Blåhaj!"
 
+
 function reloadBlahajDisplays():
 	send "Reloading Blahaj Displays!" to console
 	loop all armor stands:
@@ -151,7 +152,9 @@ on load:
 # Events
 on spawn of sheep:
 	if spawn reason is spawn egg:
-		if nearest player is holding sheep spawn egg named "&bB&dl&fåh&ba&dj &fspawn egg":
+		set {_playerTool} to 1 of nearest player's tool
+		if {_playerTool} is sheep egg named "&bB&dl&fåh&da&bj &fspawn egg":
+			add event-entity's uuid to {blahajScript::targetUUID::*}
 			transformToBlahaj(event-entity)
 	
 	#else if spawn reason is not customized: # Skript does not catch natural world sheep spawns? Zombies & other mobs work, but not animals from my testing. ):
