@@ -231,4 +231,4 @@ on damage of player:
 command /getBlahajEgg:
 	permission: op
 	trigger:
-		give sheep egg named "&bB&dl&fåh&ba&dj &fspawn egg" to player
+		give sheep egg named "&bB&dl&fåh&da&bj &fspawn egg" to player
