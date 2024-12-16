@@ -2,8 +2,8 @@
 options:
 
 	### Gameplay! ###
-	# The chance of a sheep being converted into a Blahaj plushie :3
-	chanceOfBlahaj: 20
+	# The chance of a sheep being converted into a Blahaj plushie :3 (% based)
+	chanceOfBlahaj: 35
 
 	# Strikes anyone with lightning & broadcasts their sins if they do harm to Blahaj!
 	karma: true
@@ -25,6 +25,7 @@ function transformToBlahaj(oEntity: entity):
 
 	if {blahajScript::blahaj::%{_oEntity}'s uuid%::mainLoop} is set:
 		clear {blahajScript::blahaj::%{_oEntity}'s uuid%::mainLoop}
+		kill {blahajScript::blahaj::%{_oEntity}'s uuid%::linkedEntity}
 		wait 1 tick
 
 	# oEntity=(Original entity), dEntity=(Display entity/armor stand)
@@ -116,10 +117,25 @@ function clearBlahaj(oEntity: entity, dEntity: entity):
 	clear {blahajScript::blahaj::%{_oEntity}'s uuid%}
 	clear {blahajScript::blahaj::%{_dEntity}'s uuid%}
 
+function clearAllUnspawnedTargets():
+	loop all sheep:
+		add loop-entity's uuid to {_uuids::*}
+	
+	loop {blahajScript::targetUUID::*}:
+		if {_uuids::*} does not contain loop-value:
+			clear {blahajScript::targetUUID::%loop-index%}
+
 # Preloads
 on load:
 	set {blahajScript::blahajHead} to player head named "&bB&dl&fåh&ba&dj &fFace Mask" with lore "&8&oMr Sharky understands me." with nbt from "{SkullOwner:{Id:[I;351810120,-1305655747,-1771231471,122348655],Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjZkNWRhNzlkNzhiZTllNzY2MmY2NWMyNTBhMTdmYzE4ZDBlZTYzMTEwZmFjMDY4ZDUxY2E1ZDU5MmY3MDUyZSJ9fX0=""}]}}}"
 	set {blahajScript::blahajFur} to light blue wool named "&fBlåhaj Fur"
+
+	register shaped recipe:
+		id: "blahajScript:blahaj_head"
+		result: {blahajScript::blahajHead}
+		shape: "aaa", "a a"
+		ingredients:
+			set ingredient of "a" to {blahajScript::blahajFur}
 
 	register shaped recipe:
 		id: "blahajScript:blahaj_head"
@@ -133,6 +149,7 @@ on load:
 		wait 4 ticks
 	wait {@loadDelay}
 	reloadBlahajDisplays()
+	clearAllUnspawnedTargets()
 
 
 # Events
@@ -140,9 +157,23 @@ on spawn of sheep:
 	if spawn reason is spawn egg:
 		if nearest player is holding sheep spawn egg named "&bB&dl&fåh&ba&dj &fspawn egg":
 			transformToBlahaj(event-entity)
-	else if spawn reason is natural:
-		chance of {chanceOfBlahaj}%:
-			transformToBlahaj(event-entity)
+	
+	#else if spawn reason is not customized: # Skript does not catch natural world sheep spawns? Zombies & other mobs work, but not animals from my testing. ):
+	#	chance of {@chanceOfBlahaj}/100:
+	#		transformToBlahaj(last spawned entity)
+
+# Spawning Work Around
+every 20 ticks:
+	if {blahajScript::numberOfTargets} != amount of all sheep:
+		loop all sheep:
+			chance of {@chanceOfBlahaj}/100:
+				if {blahajScript::targetUUID::*} does not contain loop-entity's uuid:
+					transformToBlahaj(loop-entity)
+			add loop-entity's uuid to {blahajScript::targetUUID::*}
+	set {blahajScript::numberOfTargets} to amount of all sheep
+
+
+
 
 on death of sheep:
 	if checkLinkedEntity(victim) is true:
