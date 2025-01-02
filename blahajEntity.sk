@@ -23,13 +23,13 @@ options:
 # Functions
 function transformToBlahaj(oEntity: entity):
 
-	if {blahajScript::blahaj::%{_oEntity}'s uuid%::mainLoop} is set:
-		clear {blahajScript::blahaj::%{_oEntity}'s uuid%::mainLoop}
-		kill {blahajScript::blahaj::%{_oEntity}'s uuid%::linkedEntity}
+	if {bls::entities::%{_oEntity}'s uuid%::mainLoop} is set:
+		clear {bls::entities::%{_oEntity}'s uuid%::mainLoop}
+		kill {bls::entities::%{_oEntity}'s uuid%::linkedEntity}
 		wait 1 tick
 
 	# oEntity=(Original entity), dEntity=(Display entity/armor stand)
-	
+
 	# Origin entity's apperance
 	make {_oEntity} invisible
 	make {_oEntity} silent
@@ -39,24 +39,24 @@ function transformToBlahaj(oEntity: entity):
 	set {_dEntity} to last spawned armor stand
 
 	# Link Entities
-	set {blahajScript::blahaj::%{_oEntity}'s uuid%::linkedEntity} to {_dEntity}
-	set {blahajScript::blahaj::%{_dEntity}'s uuid%::linkedEntity} to {_oEntity}
+	set {bls::entities::%{_oEntity}'s uuid%::linkedEntity} to {_dEntity}
+	set {bls::entities::%{_dEntity}'s uuid%::linkedEntity} to {_oEntity}
 
-	set {blahajScript::blahaj::%{_oEntity}'s uuid%} to true
-	set {blahajScript::blahaj::%{_dEntity}'s uuid%} to true
+	set {bls::entities::%{_oEntity}'s uuid%} to true
+	set {bls::entities::%{_dEntity}'s uuid%} to true
 
 	# Display entity's apperance
 	set name of {_dEntity} to "&bB&dl&fåh&da&bj"
 	add nbt from "{CustomNameVisible:1}" to nbt of {_dEntity}
 	make {_dEntity} invisible
-	set helmet of {_dEntity} to {blahajScript::blahajHead}
+	set helmet of {_dEntity} to {bls::blahajHead}
 
 	blahajEntityLoop({_oEntity}, {_dEntity})
 
 
 function blahajEntityLoop(oEntity: entity, dEntity: entity):
-	set {blahajScript::blahaj::%{_oEntity}'s uuid%::mainLoop} to true
-	while {blahajScript::blahaj::%{_oEntity}'s uuid%::mainLoop} is set:
+	set {bls::entities::%{_oEntity}'s uuid%::mainLoop} to true
+	while {bls::entities::%{_oEntity}'s uuid%::mainLoop} is set:
 		teleport {_dEntity} at location 2 blocks below {_oEntity}'s head
 		play 1 dust at location 0.5 blocks below {_dEntity}'s head
 		wait 1 tick
@@ -64,7 +64,7 @@ function blahajEntityLoop(oEntity: entity, dEntity: entity):
 
 
 function checkLinkedEntity(en: entity) :: boolean:
-	if {blahajScript::blahaj::%{_en}'s uuid%} is set:
+	if {bls::entities::%{_en}'s uuid%} is set:
 		return true
 	else:
 		return false
@@ -72,9 +72,9 @@ function checkLinkedEntity(en: entity) :: boolean:
 
 function shearBlahaj(oEntity: entity):
 	# First element is used however, there should only be *one* element for the linked entity
-	set {_dEntity} to {blahajScript::blahaj::%{_oEntity}'s uuid%::linkedEntity}
+	set {_dEntity} to {bls::entities::%{_oEntity}'s uuid%::linkedEntity}
 	set name of {_dEntity} to "&7Blåhaj &c✂"
-	drop {blahajScript::blahajFur} at {_oEntity}
+	drop {bls::blahajFur} at {_oEntity}
 	# blahajHappy({_oEntity}) <- Already plays in right click event
 
 
@@ -84,7 +84,7 @@ function blahajHappy(oEntity: entity):
 
 
 function killBlahaj(oEntity: entity, attacker: entity):
-	set {_dEntity} to {blahajScript::blahaj::%{_oEntity}'s uuid%::linkedEntity}
+	set {_dEntity} to {bls::entities::%{_oEntity}'s uuid%::linkedEntity}
 	play sound "minecraft:entity.dolphin.death" in friendly creatures category with volume 1 at location of {_oEntity} for all players
 	make 20 of dripping water at location 1.2 block above {_dEntity} with offset vector(0.3, 0.5, 0.3)
 	wait 20 ticks
@@ -104,49 +104,50 @@ function killBlahaj(oEntity: entity, attacker: entity):
 function reloadBlahajDisplays():
 	send "Reloading Blahaj Displays!" to console
 	loop all armor stands:
-		if {blahajScript::blahaj::%loop-entity's uuid%} is true:
-			clear {blahajScript::blahaj::%loop-entity's uuid%}
-			clear {blahajScript::blahaj::%loop-entity's uuid%::*}
+		if {bls::entities::%loop-entity's uuid%} is true:
+			clear {bls::entities::%loop-entity's uuid%}
+			clear {bls::entities::%loop-entity's uuid%::*}
 			kill loop-entity
 
 	loop all sheep:
-		if {blahajScript::blahaj::%loop-entity's uuid%} is true:
+		if {bls::entities::%loop-entity's uuid%} is true:
 			transformToBlahaj(loop-entity)
 
 
 function clearBlahaj(oEntity: entity, dEntity: entity):
-	clear {blahajScript::blahaj::%{_oEntity}'s uuid%::*}
-	clear {blahajScript::blahaj::%{_dEntity}'s uuid%::*}
-	clear {blahajScript::blahaj::%{_oEntity}'s uuid%}
-	clear {blahajScript::blahaj::%{_dEntity}'s uuid%}
+	clear {bls::entities::%{_oEntity}'s uuid%::*}
+	clear {bls::entities::%{_dEntity}'s uuid%::*}
+	clear {bls::entities::%{_oEntity}'s uuid%}
+	clear {bls::entities::%{_dEntity}'s uuid%}
 
 
 function clearAllUnspawnedTargets():
 	loop all sheep:
 		add loop-entity's uuid to {_uuids::*}
-	
-	loop {blahajScript::targetUUID::*}:
+
+	loop {bls::targetUUID::*}:
 		if {_uuids::*} does not contain loop-value:
-			clear {blahajScript::targetUUID::%loop-index%}
+			clear {bls::targetUUID::%loop-index%}
 
 
 # Preloads
 on load:
-	set {blahajScript::blahajHead} to player head named "&bB&dl&fåh&ba&dj &fFace Mask" with lore "&8&oMr Sharky understands me." with nbt from "{SkullOwner:{Id:[I;351810120,-1305655747,-1771231471,122348655],Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjZkNWRhNzlkNzhiZTllNzY2MmY2NWMyNTBhMTdmYzE4ZDBlZTYzMTEwZmFjMDY4ZDUxY2E1ZDU5MmY3MDUyZSJ9fX0=""}]}}}"
-	set {blahajScript::blahajFur} to light blue wool named "&fBlåhaj Fur"
+	clear {bls::temp::*}
+	set {bls::blahajHead} to player head named "&bB&dl&fåh&ba&dj &fFace Mask" with lore "&8&oMr Sharky understands me." with nbt from "{SkullOwner:{Id:[I;351810120,-1305655747,-1771231471,122348655],Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjZkNWRhNzlkNzhiZTllNzY2MmY2NWMyNTBhMTdmYzE4ZDBlZTYzMTEwZmFjMDY4ZDUxY2E1ZDU5MmY3MDUyZSJ9fX0=""}]}}}"
+	set {bls::blahajFur} to light blue wool named "&fBlåhaj Fur"
 
 	register shaped recipe:
-		id: "blahajScript:blahaj_head"
-		result: {blahajScript::blahajHead}
+		id: "bls:blahaj_head"
+		result: {bls::blahajHead}
 		shape: "aaa", "a a", "aaa"
 		ingredients:
-			set ingredient of "a" to {blahajScript::blahajFur}
+			set ingredient of "a" to {bls::blahajFur}
+	clearAllUnspawnedTargets()
 
-	while amount of players <= 0:
-		wait 4 ticks
+
+on join:
 	wait {@loadDelay}
 	reloadBlahajDisplays()
-	clearAllUnspawnedTargets()
 
 
 # Events
@@ -154,22 +155,22 @@ on spawn of sheep:
 	if spawn reason is spawn egg:
 		set {_playerTool} to 1 of nearest player's tool
 		if {_playerTool} is sheep egg named "&bB&dl&fåh&da&bj &fspawn egg":
-			add event-entity's uuid to {blahajScript::targetUUID::*}
+			add event-entity's uuid to {bls::targetUUID::*}
 			transformToBlahaj(event-entity)
-	
+
 	#else if spawn reason is not customized: # Skript does not catch natural world sheep spawns? Zombies & other mobs work, but not animals from my testing. ):
 	#	chance of {@chanceOfBlahaj}/100:
 	#		transformToBlahaj(last spawned entity)
 
 # Spawning Work Around
 every 20 ticks:
-	if {blahajScript::numberOfTargets} != amount of all sheep:
+	if {bls::numberOfTargets} != amount of all sheep:
 		loop all sheep:
 			chance of {@chanceOfBlahaj}/100:
-				if {blahajScript::targetUUID::*} does not contain loop-entity's uuid:
+				if {bls::targetUUID::*} does not contain loop-entity's uuid:
 					transformToBlahaj(loop-entity)
-			add loop-entity's uuid to {blahajScript::targetUUID::*}
-	set {blahajScript::numberOfTargets} to amount of all sheep
+			add loop-entity's uuid to {bls::targetUUID::*}
+	set {bls::numberOfTargets} to amount of all sheep
 
 
 
@@ -188,15 +189,15 @@ on shear entity:
 	if checkLinkedEntity(event-entity) is true:
 		set {_oEntity} to event-entity
 		shearBlahaj({_oEntity})
-		
+
 on sheep grow wool:
 	if checkLinkedEntity(event-entity) is true:
-		set {_dEntity} to {blahajScript::blahaj::%event-entity's uuid%::linkedEntity}
+		set {_dEntity} to {bls::entities::%event-entity's uuid%::linkedEntity}
 		set name of {_dEntity} to "&bB&dl&fåh&da&bj"
 
 on pick up of light blue wool:
-	if event-item is {blahajScript::blahajFur}:
-		discover recipe "blahajScript:blahaj_head" for player
+	if event-item is {bls::blahajFur}:
+		discover recipe "bls:blahaj_head" for player
 
 on right click on sheep:
 	if checkLinkedEntity(event-entity) is true:
@@ -208,9 +209,9 @@ on sneak toggle:   # ¬ Dash mechanic
 	if {@dash} is true:
 		if player is not sneaking:
 			if player is sprinting:
-				if player's helmet is {blahajScript::blahajHead}:
-					if {blahajScript::%Player%::dash} is not set:
-						set {blahajScript::%Player%::dash} to false
+				if player's helmet is {bls::blahajHead}:
+					if {bls::temp::%Player%::dash} is not set:
+						set {bls::temp::%Player%::dash} to false
 						play sound "entity.wither.shoot" with pitch 1.5 at player
 						make 20 of poof at player with offset vector(0.2, 0.2, 0.2) with extra 0.2
 						push player upwards at speed 0.3
@@ -220,13 +221,13 @@ on sneak toggle:   # ¬ Dash mechanic
 							make 1 of poof at player with offset vector(0.2, 0.2, 0.2) with extra 0.05
 							if player is not alive:
 								exit loop
-						clear {blahajScript::%Player%::dash}
+						clear {bls::temp::%Player%::dash}
 
 on damage of player:
 	if damage cause is fall:
 		if {@dashFallDmg} is false:
-			if victim's helmet is {blahajScript::blahajHead}:
-				if {blahajScript::%victim%::dash} is set:
+			if victim's helmet is {bls::blahajHead}:
+				if {bls::%victim%::dash} is set:
 					cancel event
 
 
