@@ -15,7 +15,8 @@ options:
 	dashFallDmg: false
 
 	### Adminy Stuff! ###
-	# The delay between the player to first join & Blahaj display reload
+	# The delay between the player join & Blahaj display reload
+	# Only added because 'on spawn of sheep' doesnt work with natural spawns bwaa... ):
 	loadDelay: 20 ticks
 
 
