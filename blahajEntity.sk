@@ -47,7 +47,10 @@ function transformToBlahaj(oEntity: entity):
 	set {bls::entities::%{_dEntity}'s uuid%} to true
 
 	# Display entity's apperance
-	set name of {_dEntity} to "&bB&dl&fåh&da&bj"
+	if {_oEntity} is sheared:
+		set name of {_dEntity} to "&bB&dl&fåh&da&bj"
+	else:
+		set name of {_dEntity} to "&7Blåhaj &c✂"
 	add nbt from "{CustomNameVisible:1}" to nbt of {_dEntity}
 	make {_dEntity} invisible
 	set helmet of {_dEntity} to {bls::blahajHead}
